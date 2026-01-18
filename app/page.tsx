@@ -1,85 +1,60 @@
-"use client"
+'use client';
 
-import { useMemo, useState } from "react"
-import { IOSTabBar } from "@/components/ios-tab-bar"
-import { RequestCard } from "@/components/request-card"
-import { RequestCardSkeleton } from "@/components/skeletons/request-card-skeleton"
-import { RefreshCw } from "lucide-react"
-import { useRequests } from "@/lib/hooks"
+import Link from "next/link";
+import Image from "next/image"; // 이미지를 불러오는 도구 추가
+import { ShieldCheck } from "lucide-react"; // Sparkles는 이제 안 씁니다.
 
-export default function Home() {
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const { requests, isLoading, isError, mutate } = useRequests()
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    await mutate()
-    setIsRefreshing(false)
-  }
-
-  // 최신순 정렬 (submitted_at 기준)
-  const sortedRequests = useMemo(() => {
-    return [...requests].sort((a, b) => {
-      const bt = new Date(b.submitted_at).getTime()
-      const at = new Date(a.submitted_at).getTime()
-      return bt - at
-    })
-  }, [requests])
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <header className="sticky top-0 z-40 glass-effect border-b border-[#e5e5ea]/50 px-4 pb-3 pt-14">
-        <div className="flex items-center justify-between">
-          <h1 className="text-[34px] font-bold tracking-tight text-[#1c1c1e]">Requests</h1>
-          <button
-            onClick={handleRefresh}
-            className="rounded-full p-2 transition-colors hover:bg-[#e5e5ea]"
-            aria-label="Refresh"
-            disabled={isLoading || isRefreshing}
-          >
-            <RefreshCw className={`h-5 w-5 text-[#007aff] ${isRefreshing ? "animate-spin" : ""}`} />
-          </button>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6 text-center font-sans">
+      
+      {/* 로고 영역 (수정됨) */}
+      <div className="mb-8 animate-bounce-slow">
+        {/* 기존의 Sparkles 아이콘 대신, 영주님의 로고 이미지를 넣습니다. */}
+        <Image 
+          src="/logo.png" // public 폴더에 넣은 파일 이름
+          alt="CompassLab Logo"
+          width={100} // 너비 (원하는 크기로 조절 가능)
+          height={100} // 높이
+          className="rounded-xl" // 약간 둥글게 처리 (선택 사항)
+          priority // 가장 먼저 로딩되도록 설정
+        />
+      </div>
 
-        <div className="flex justify-between items-center mt-1">
-          <p className="text-[15px] text-[#8e8e93]">
-            {isLoading ? "..." : `${sortedRequests.length}개의 요청`}
-          </p>
-          {isLoading && <p className="text-xs text-blue-500">업데이트 중...</p>}
-        </div>
+      <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+        당신의 아이디어를<br/>
+        <span className="text-blue-600">현실로 만들어 드립니다</span>
+      </h1>
+      
+      <p className="text-gray-500 text-lg md:text-xl max-w-2xl mb-12 leading-relaxed">
+        복잡한 코딩 없이, 상상만 하세요.<br/>
+        나머지는 전문 컨설턴트가 해결해 드립니다.
+      </p>
 
-        {isError && (
-          <p className="mt-2 text-[13px] text-red-600">
-            데이터를 불러오는 중 오류가 발생했습니다.
-          </p>
-        )}
-      </header>
+      <div className="flex flex-col md:flex-row gap-4 w-full max-w-md">
+        {/* 소비자용: Tally 설문 버튼 */}
+        <a 
+          href="https://tally.so/r/zxMZg8" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 bg-blue-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex justify-center items-center"
+        >
+          🚀 앱 아이디어 제안
+        </a>
 
-      {/* Content */}
-      <main className="space-y-3 p-4">
-        {isLoading && requests.length === 0 ? (
-          // Skeleton Loading State
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="animate-slide-up" style={{ animationDelay: `${i * 50}ms` }}>
-              <RequestCardSkeleton />
-            </div>
-          ))
-        ) : !isLoading && !isError && sortedRequests.length === 0 ? (
-          <div className="rounded-2xl border border-[#e5e5ea]/70 bg-white/60 p-4 text-[14px] text-[#8e8e93]">
-            아직 표시할 요청이 없습니다.
-          </div>
-        ) : (
-          sortedRequests.map((request, index) => (
-            <div key={request.request_id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-              <RequestCard request={request} studentName={request.requester_name} />
-            </div>
-          ))
-        )}
-      </main>
+        {/* 관리자용: 로그인 버튼 */}
+        <Link 
+          href="/admin" 
+          className="flex-1 bg-white text-gray-700 font-bold py-4 px-8 rounded-xl border border-gray-200 hover:bg-gray-50 transition flex justify-center items-center gap-2"
+        >
+          <ShieldCheck className="w-5 h-5" /> 관리자 로그인
+        </Link>
+      </div>
 
-      <IOSTabBar />
+      {/* 하단 저작권 표시 */}
+      <footer className="mt-20 text-gray-400 text-sm">
+        © 2026 CompassLab. All rights reserved.
+      </footer>
     </div>
-  )
+  );
 }
